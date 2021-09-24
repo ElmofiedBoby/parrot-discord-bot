@@ -153,7 +153,7 @@ class Music(commands.Cog):
             ctx.voice_client.stop()
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"),
-                   description='Relatively simple music bot example')
+                   description='nithin\'s personal music/fun bot')
 
 @bot.event
 async def on_reaction_add(reaction, user):
