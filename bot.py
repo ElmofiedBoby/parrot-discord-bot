@@ -58,6 +58,20 @@ class Music(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+    
+    @commands.Cog.listener()
+    async def on_message(self, message):
+
+        if message.author == bot.user:
+            return
+
+        if "cringe" in message.content:
+            emoji_disgust = '\U0001F922'
+            await message.add_reaction(emoji_disgust) # 🤢
+
+        if message.content.startswith('b') or message.content.startswith('B'):
+            emoji_b = '\U0001F171' # 🅱
+            await message.add_reaction(emoji_b)
 
     @commands.command()
     async def join(self, ctx, *, channel: discord.VoiceChannel):
@@ -140,33 +154,39 @@ class Music(commands.Cog):
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"),
                    description='Relatively simple music bot example')
+"""
+@bot.event
+async def on_message(self, message):
+    if message.content == 'ping':
+        await message.channel.send('pong')
+
+@bot.on_message
+async def dumb_functions(message):
+
+    if message.author == bot.user:
+        return
+
+    if "cringe" in message.content:
+        emoji_disgust = '\U0001F922'
+        await message.add_reaction(emoji_disgust) # 🤢
+
+    if message.content.startswith('b') or message.content.startswith('B'):
+        emoji_b = '\U0001F171' # 🅱
+        await message.add_reaction(emoji_b)
+"""
+
+@bot.event
+async def on_reaction_add(reaction, user):
+    quotes = bot.get_channel(888832318511386644)
+    if user.bot:
+        return
+    if reaction.emoji == '\U0001F4F8':
+        await quotes.send("\"{0}\" -{1}".format(reaction.message.content, reaction.message.author))
 
 @bot.event
 async def on_ready():
     print('Logged in as {0} ({0.id})'.format(bot.user))
     print('------')
-
-#@bot.event
-#async def on_message(message):
-
-#    if message.author == bot.user:
-#        return
-
-#    if "cringe" in message.content:
-#        emoji_disgust = '\U0001F922'
-#        await message.add_reaction(emoji_disgust) # 🤢
-
-#    if message.content.startswith('b') or message.content.startswith('B'):
-#        emoji_b = '\U0001F171' # 🅱
-#        await message.add_reaction(emoji_b)
-    
-#@bot.event
-#async def on_reaction_add(reaction, user):
-#    quotes = bot.get_channel(888832318511386644)
-#    if user.bot:
-#        return
-#    if reaction.emoji == '\U0001F4F8':
-#        await quotes.send("\"{0}\" -{1}".format(reaction.message.content, reaction.message.author))
 
 
 bot.add_cog(Music(bot))
