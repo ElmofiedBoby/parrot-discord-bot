@@ -20,13 +20,3 @@ class Chat(commands.Cog):
         if message.content.startswith('b') or message.content.startswith('B'):
             emoji_b = '\U0001F171' # 🅱
             await message.add_reaction(emoji_b)
-    
-    @commands.Cog.listener()
-    async def on_reaction_add(chat, reaction, user):
-        id = 888832318511386644
-        #quotes = bot.Bot.get_channel(id)
-        quotes = await bot.Bot.get_channel(int(id))
-        if user.bot:
-            return
-        if reaction.emoji == '\U0001F4F8':
-            await quotes.send("\"{0}\" -{1}".format(reaction.message.content, reaction.message.author))
