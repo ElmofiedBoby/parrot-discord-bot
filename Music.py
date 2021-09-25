@@ -1,7 +1,10 @@
+import asyncio
 import discord
 import YTDLSource
 import queue_tracker as q
 from discord.ext import commands
+
+music_queue = []
 
 class Music(commands.Cog):
 
@@ -64,29 +67,39 @@ class Music(commands.Cog):
 
     @commands.command()
     async def skip(self, ctx):
-        if q.list_size() != 0:
-            await ctx.send('Skipping: {}'.format(q.get_list()[0].title))
-            q.skip()
+        if(len(q.get_list())==0):
+            await ctx.send('Nothing is queued!')
         else:
-            await ctx.send('Nothing is playing! The queue is empty...')          
-    
+            for song in q.get_list():
+                await ctx.send('Now playing: {}'.format(song.title))
+                ctx.voice_client.stop()
+                ctx.voice_client.play(song, after=q.remove_queue())        
+
     @commands.command()
     async def play(self, ctx, *, url):
-        
-        #music_queue = []
+        player = await YTDLSource.YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+        await ctx.send('Now playing: {}'.format(player.title))
+        ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
+
+    @commands.command()
+    async def playnext(self, ctx, *, url):
+        player = await YTDLSource.YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+        q.add_queue(player)
+
+
+    @commands.command()
+    async def play_queue(self, ctx):
 
         """Streams from a url (same as yt, but doesn't predownload)"""
         async with ctx.typing():
-            player = await YTDLSource.YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-            #music_queue.append(player)
-            q.add_queue(player)
-            await ctx.send('Song queued up : {}'.format(player.title))
+            #player = await YTDLSource.YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+            #await ctx.send('Song queued up : {}'.format(player.title))
             if(len(q.get_list())==0):
-                
+                await ctx.send('Nothing is queued!')
+            else:
                 for song in q.get_list():
                     await ctx.send('Now playing: {}'.format(song.title))
-                    ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
-                    q.remove_queue()
+                    ctx.voice_client.play(song, after=q.remove_queue())
 
         
 
@@ -106,6 +119,8 @@ class Music(commands.Cog):
 
         await ctx.voice_client.disconnect()
 
+    @playnext.before_invoke
+    @play_queue.before_invoke
     @local.before_invoke
     @play.before_invoke
     @play_download.before_invoke

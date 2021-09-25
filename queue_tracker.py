@@ -1,4 +1,5 @@
 queue = []
+nowplaying = []
 
 def add_queue(song):
     queue.append(song)
