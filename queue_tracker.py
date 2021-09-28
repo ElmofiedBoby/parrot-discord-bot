@@ -1,5 +1,6 @@
 queue = []
-nowplaying = []
+lastplayed = "Nothing"
+counter = 0
 
 def add_queue(song):
     queue.append(song)
@@ -21,3 +22,19 @@ def list_size():
 
 def modify(index, value):
     queue[index] = value
+
+def inc_counter(num):
+    counter = get_counter() + 1
+
+def dec_counter(num):
+    counter = get_counter() - 1
+
+def get_counter():
+    return counter
+
+def song_played(song):
+    remove_queue()
+    lastplayed = song.title
+
+def get_last_played():
+    return lastplayed

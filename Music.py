@@ -63,7 +63,7 @@ class Music(commands.Cog):
 
     @commands.command()
     async def nowplaying(self, ctx):
-        await ctx.send('Now playing: {}'.format(q.get_list()[0].title))
+        await ctx.send('Now playing: {}'.format(q.get_last_played()))
 
     @commands.command()
     async def skip(self, ctx):
@@ -97,9 +97,13 @@ class Music(commands.Cog):
             if(len(q.get_list())==0):
                 await ctx.send('Nothing is queued!')
             else:
-                for song in q.get_list():
-                    await ctx.send('Now playing: {}'.format(song.title))
-                    ctx.voice_client.play(song, after=q.remove_queue())
+                while q.list_size() != 0:
+                    counter = q.get_counter()   
+                    song = q.get_list()[q.get_counter()]
+                    if not ctx.voice_client.is_playing():
+                        await ctx.send('Now playing: {}'.format(song.title))
+                        ctx.voice_client.play(song, after=q.song_played(song))
+                        print("Now Playing: {}".format(song.title))
 
         
 
