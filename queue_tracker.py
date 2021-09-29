@@ -1,6 +1,7 @@
 queue = []
 lastplayed = "Nothing"
 counter = 0
+play_status = False
 
 def add_queue(song):
     queue.append(song)
@@ -38,3 +39,9 @@ def song_played(song):
 
 def get_last_played():
     return lastplayed
+
+def get_play_status():
+    return play_status
+
+def set_play_status(status):
+    play_status = status

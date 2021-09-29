@@ -2,7 +2,7 @@ import asyncio
 import discord
 import YTDLSource
 import queue_tracker as q
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 music_queue = []
 
@@ -68,12 +68,12 @@ class Music(commands.Cog):
     @commands.command()
     async def skip(self, ctx):
         if(len(q.get_list())==0):
+            ctx.voice_client.stop()
             await ctx.send('Nothing is queued!')
         else:
-            for song in q.get_list():
-                await ctx.send('Now playing: {}'.format(song.title))
-                ctx.voice_client.stop()
-                ctx.voice_client.play(song, after=q.remove_queue())        
+            ctx.voice_client.stop()
+            self.playing.start(ctx) 
+             
 
     @commands.command()
     async def play(self, ctx, *, url):
@@ -89,23 +89,27 @@ class Music(commands.Cog):
 
     @commands.command()
     async def play_queue(self, ctx):
-
         """Streams from a url (same as yt, but doesn't predownload)"""
         async with ctx.typing():
-            #player = await YTDLSource.YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-            #await ctx.send('Song queued up : {}'.format(player.title))
-            if(len(q.get_list())==0):
+
+            if(len(q.get_list())==0):  
                 await ctx.send('Nothing is queued!')
             else:
-                while q.list_size() != 0:
-                    counter = q.get_counter()   
-                    song = q.get_list()[q.get_counter()]
-                    if not ctx.voice_client.is_playing():
-                        await ctx.send('Now playing: {}'.format(song.title))
-                        ctx.voice_client.play(song, after=q.song_played(song))
-                        print("Now Playing: {}".format(song.title))
+                self.playing.start(ctx)
 
-        
+    @tasks.loop(seconds = 1.0)
+    async def playing(self, ctx):
+            counter = q.get_counter()   
+            if(len(q.get_list()) == 0 and not ctx.voice_client.is_playing()):
+                ctx.voice_client.stop()
+            else:
+                song = q.get_list()[0]
+            if ctx.voice_client.is_playing():
+                print("Currently Playing!")
+            else:
+                await ctx.send('Now playing: {}'.format(song.title))
+                ctx.voice_client.play(song, after=q.song_played(song))
+                print("Now Playing: {}".format(song.title))
 
     @commands.command()
     async def volume(self, ctx, volume: int):
