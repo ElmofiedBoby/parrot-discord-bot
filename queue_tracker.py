@@ -1,47 +1,59 @@
 queue = []
 lastplayed = "Nothing"
 counter = 0
-play_status = False
 
-def add_queue(song):
-    queue.append(song)
 
-def remove_queue():
-    queue.pop(0)
+class b:
 
-def get_player(index):
-    return queue[index]
+    def __init__(self):
+        self.has_init = False
+        self.play_status = False
 
-def get_list():
-    return queue
+    def add_queue(song):
+        queue.append(song)
 
-def skip():
-    queue.pop(0)
+    def remove_queue():
+        queue.pop(0)
 
-def list_size():
-    return len(queue)
+    def get_player(index):
+        return queue[index]
 
-def modify(index, value):
-    queue[index] = value
+    def get_list():
+        return queue
 
-def inc_counter(num):
-    counter = get_counter() + 1
+    def skip():
+        queue.pop(0)
 
-def dec_counter(num):
-    counter = get_counter() - 1
+    def list_size():
+        return len(queue)
 
-def get_counter():
-    return counter
+    def modify(index, value):
+        queue[index] = value
 
-def song_played(song):
-    remove_queue()
-    lastplayed = song.title
+    def inc_counter(self, num):
+        self.counter = b.get_counter() + 1
 
-def get_last_played():
-    return lastplayed
+    def dec_counter(self, num):
+        self.counter = b.get_counter() - 1
 
-def get_play_status():
-    return play_status
+    def get_counter():
+        return counter
 
-def set_play_status(status):
-    play_status = status
+    def song_played(self, song):
+        b.remove_queue()
+        self.lastplayed = song.title
+
+    def get_last_played():
+        return lastplayed
+
+    def get_play_status(self):
+        return self.play_status
+
+    def set_play_status(self, status):
+        self.play_status = status
+
+    def get_init_status(self):
+        return self.has_init
+
+    def change_init_status(self, changed):
+        self.has_init = changed
