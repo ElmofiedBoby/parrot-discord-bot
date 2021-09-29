@@ -76,19 +76,22 @@ class Music(commands.Cog):
              
 
     @commands.command()
-    async def play(self, ctx, *, url):
+    async def play_fallback(self, ctx, *, url):
         player = await YTDLSource.YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
         await ctx.send('Now playing: {}'.format(player.title))
         ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
 
+    #@commands.command()
+    #async def playnext(self, ctx, *, url):
+    #    player = await YTDLSource.YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+    #    q.add_queue(player)
+
+
     @commands.command()
-    async def playnext(self, ctx, *, url):
+    async def play(self, ctx, *, url):
         player = await YTDLSource.YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
         q.add_queue(player)
 
-
-    @commands.command()
-    async def play_queue(self, ctx):
         """Streams from a url (same as yt, but doesn't predownload)"""
         async with ctx.typing():
 
@@ -99,17 +102,33 @@ class Music(commands.Cog):
 
     @tasks.loop(seconds = 1.0)
     async def playing(self, ctx):
-            counter = q.get_counter()   
+            
+            print(len(q.get_list()))
+
             if(len(q.get_list()) == 0 and not ctx.voice_client.is_playing()):
                 ctx.voice_client.stop()
-            else:
-                song = q.get_list()[0]
-            if ctx.voice_client.is_playing():
+
+            elif(len(q.get_list()) == 0 and ctx.voice_client.is_playing()):
+                print("Can't retrieve next song!")
+            
+            elif(len(q.get_list()) != 0 and ctx.voice_client.is_playing()):
                 print("Currently Playing!")
-            else:
-                await ctx.send('Now playing: {}'.format(song.title))
-                ctx.voice_client.play(song, after=q.song_played(song))
-                print("Now Playing: {}".format(song.title))
+
+            elif(len(q.get_list()) == 1):
+                print("Currently Playing!")
+                print(ctx.voice_client.is_playing())
+
+            elif(len(q.get_list()) != 0 and not ctx.voice_client.is_playing()):
+                try:
+                    song = q.get_list()[0]
+                    await ctx.send('Now playing: {}'.format(song.title))
+                    ctx.voice_client.play(song, after=q.song_played(song))
+                    print("Now Playing: {}".format(song.title))
+                except:
+                    print("Error Occurred")
+            
+            
+                
 
     @commands.command()
     async def volume(self, ctx, volume: int):
@@ -127,8 +146,8 @@ class Music(commands.Cog):
 
         await ctx.voice_client.disconnect()
 
-    @playnext.before_invoke
-    @play_queue.before_invoke
+    #@playnext.before_invoke
+    @play_fallback.before_invoke
     @local.before_invoke
     @play.before_invoke
     @play_download.before_invoke
