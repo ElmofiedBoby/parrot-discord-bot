@@ -74,6 +74,7 @@ class Music(commands.Cog):
             await ctx.send('Nothing is queued!')
         else:
             ctx.voice_client.stop()
+            self.playing.stop()
             self.playing.start(ctx) 
              
 
